@@ -42,7 +42,7 @@ public class SpringFoxConfig{
 				.securitySchemes(Lists.newArrayList(apiKey()));
 		
 		//swagger에 표시할 api들에 대한 선언
-		docketT.groupName("tqa.demo.order").select().apis(RequestHandlerSelectors.any())
+		docketT.groupName("tqa").select().apis(RequestHandlerSelectors.any())
 		.paths(uriPaths("/demo/order/.*"))
 		.paths(Predicates.not(PathSelectors.regex("/error.*"))) //제외할 URI path 지정
 		.build().apiInfo(apiInfoT.build());
