@@ -1,0 +1,50 @@
+server:
+  port: 7475
+  
+spring:
+  application:
+    name: order
+    
+  h2:
+    console:
+      enabled: true
+      path: /console
+      
+  ## Spring Data Source
+  datasource:
+    platform: h2
+    url: jdbc:h2:~/test #;DB_CLOSE_DELAY=1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        temp:
+          use_jdbc_metadata_defaults: false
+
+##mybatis config
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: tqa.demo.order.entity, tqa.demo.order.dto
+          
+feign:
+  hystrix:
+    enabled: true
+  client:
+    config:
+      default:
+        loggerLevel: FULL
+        connectTimeout: 100000
+        readTimeout: 10000
+                  
+member:
+    service:
+        url: http://localhost:7575
+                  

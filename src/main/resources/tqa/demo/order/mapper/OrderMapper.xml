@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="tqa.demo.order.mapper.OrderMapper">
+
+	<update id="updateStatus" parameterType="OrderEntity">
+	    UPDATE ORDERS
+		SET STATUS = #{status}, UPDATED_DATE = #{updatedDate}
+		WHERE ID = #{id}
+	</update>
+		
+	<select id="findByOrderId" resultType="OrderEntity">
+		SELECT ID,
+		       ORDER_USER_ID,
+		       ORDERED_DATE,
+		       UPDATED_DATE,
+		       STATUS
+		  FROM ORDERS
+		 WHERE ID = #{id}
+	</select>
+	
+	<select id="findByOrderedDate" resultType="OrderEntity">
+		SELECT ID,
+		       ORDER_USER_ID,
+		       ORDERED_DATE,
+		       UPDATED_DATE,
+		       STATUS
+		  FROM ORDERS
+		 WHERE ORDERED_DATE BETWEEN #{fromDate} AND #{toDate}
+	</select>
+	
+	<delete id="deleteOrder" parameterType="Long">
+               delete from ORDERS where id = #{id}
+               <!-- delete from ORDERED_PRODUCT where order_id = #{id};
+               delete from SHPPING_ADDRESS where order_id = #{id};-->
+	</delete>
+	<delete id="deleteOrderedProduct" parameterType="Long">
+               delete from ORDERED_PRODUCT where order_id = #{id}
+	</delete>
+	<delete id="deleteShippingAddress" parameterType="Long">
+               delete from SHIPPING_ADDRESS where order_id = #{id}
+	</delete>
+	
+	
+</mapper>          
