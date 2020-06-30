@@ -23,6 +23,20 @@
 			</includes>
 		</fileSet>
 		<fileSet>
+			<directory>${project.build.directory}/classes</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>**tqa/demo/order/exception/*.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
+			<directory>${project.build.directory}/classes</directory>
+			<outputDirectory>/</outputDirectory>
+			<includes>
+				<include>**tqa/demo/order/entity/Status.*</include>
+			</includes>
+		</fileSet>
+		<fileSet>
 			<directory>${project.build.directory}/snippets/stubs</directory>
 			<outputDirectory>META-INF/${project.groupId}/${project.artifactId}/${project.version}/mappings</outputDirectory>
 			<includes>

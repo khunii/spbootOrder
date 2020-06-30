@@ -16,7 +16,9 @@ import tqa.demo.order.entity.Status;
 @Builder
 @ToString(exclude = {"orderedProducts", "shippingAddress"})
 public class OrderDTO implements Serializable{
-    private Long id;
+
+	private static final long serialVersionUID = -6991051757173059930L;
+	private Long id;
     private String orderUserId;
     private String orderedDate;
     private String updatedDate;
