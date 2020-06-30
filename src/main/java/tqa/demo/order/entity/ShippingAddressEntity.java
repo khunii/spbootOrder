@@ -26,6 +26,11 @@ import lombok.ToString;
 @Table(name="shipping_address")
 public class ShippingAddressEntity implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7169651639058384496L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

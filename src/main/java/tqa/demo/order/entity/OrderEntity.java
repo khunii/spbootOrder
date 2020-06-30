@@ -36,6 +36,11 @@ import tqa.demo.order.util.Utils;
 //@Alias("orders")
 public class OrderEntity implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2000735262983906599L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;

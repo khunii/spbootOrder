@@ -26,6 +26,11 @@ import lombok.ToString;
 @Table(name="ordered_product")
 public class OrderedProductEntity implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 59744650887079861L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
