@@ -9,12 +9,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import tqa.demo.order.dto.OrderDTO;
@@ -29,17 +33,19 @@ import tqa.demo.order.repository.OrderRepository;
  * insert같은 곳에서 publish하는 것은 해당 객체 @mock처리 필수
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(
-		webEnvironment = SpringBootTest.WebEnvironment.NONE,
-		properties = {"member.service.url=http://localhost:${wiremock.server.port}"}
-		)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@ActiveProfiles("test")//src/test/resources 에 application-test.yml이 있어야 함
 @AutoConfigureWireMock(port=0)
-
+@TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
 public class OrderServiceTest {
 	
    //테스트 대상 클래스를 주입
    @Autowired
    private OrderService orderService;
+   
+   //before, after sql 처리용[maven조정 필요]
+   @Autowired
+   private JdbcTemplate template;
 
    //데이터 생성을 위하여 주입했으나, 자동생성시에는 SQL문을 돌리도록 할 지 repository를 이용할 지는 결정 후 적용
    @Autowired
@@ -51,6 +57,33 @@ public class OrderServiceTest {
 	   stubFor(get(urlMatching("/product/stock/v1/retireveAvailable/([0-9])+")).willReturn(aResponse().withStatus(200)
 			   .withHeader("Content-Type", "application/json;charset=UTF-8")
 			   .withBody("1")));
+	   
+	   //before sql
+	   StringBuilder sql = new StringBuilder();
+	   sql.append("insert into orders values(1, 'jacob_test', '20200701', '20200701', 'PREPARED');");
+	   sql.append("insert into orders values(2, 'jacob_test', '20200731', '20200731', 'PREPARED');");
+	   sql.append("insert into ordered_product values (1, 1, 2000, 10, 1);");
+	   sql.append("insert into ordered_product values (2, 2, 1000, 20, 1);");
+	   sql.append("insert into ordered_product values (3, 3, 4000, 30, 2);");
+	   sql.append("insert into ordered_product values (4, 4, 3000, 40, 2);");
+	   sql.append("insert into shipping_address values (1, '123-345', 'jacob_test', 1);");
+	   sql.append("insert into shipping_address values (2, '123-345', 'jacob_test', 2);");
+	   template.batchUpdate(sql.toString().split(";"));
+   }
+   
+   @After
+   public void tearDown() throws Exception{
+	   //after sql
+	   StringBuilder sql = new StringBuilder();
+	   sql.append("delete from ordered_product where id = 1;");
+	   sql.append("delete from ordered_product where id = 2;");
+	   sql.append("delete from ordered_product where id = 3;");
+	   sql.append("delete from ordered_product where id = 4;");
+	   sql.append("delete from shipping_address where id = 1;");
+	   sql.append("delete from shipping_address where id = 2;");
+	   sql.append("delete from orders where id = 1;");
+	   sql.append("delete from orders where id = 2;");
+	   template.batchUpdate(sql.toString().split(";"));
    }
    
    @Test
@@ -80,25 +113,9 @@ public class OrderServiceTest {
    
    @Test
    public void testUpdateShippingAddress() throws Exception{
-		//fixture(주문 데이터 만들기)
-		//data 만들기(repository로 db에 직접 쌓아도 무방)
-	   List<OrderedProductDTO> productDTOList = new ArrayList<>();
-	   productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-	   productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-	   OrderDTO orderDTO = OrderDTO.builder()
-			   .orderUserId("jacob_test")
-			   .orderedDate("20200701")
-			   .updatedDate("20200701")
-			   .status(Status.PREPARED)
-			   .orderedProducts(productDTOList)
-			   .shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-			   .build();
-	   
-	   OrderDTO placedOrder = orderService.placeOrder(orderDTO);
-	   
 	   //given(입력값)
 	   ShippingAddressDTO addressDTO = new ShippingAddressDTO();
-	   addressDTO.setOrderId(placedOrder.getId());	   
+	   addressDTO.setOrderId(1L);
 	   addressDTO.setZipCode("999-999");
 	   addressDTO.setRecipient("testRecipient");
 	   
@@ -112,25 +129,9 @@ public class OrderServiceTest {
    
    @Test
    public void testUpdateOrderStatus_VerifyReturnValue() throws Exception{
-		//fixture(주문 데이터 만들기)
-		//data 만들기(repository로 db에 직접 쌓아도 무방)
-	   List<OrderedProductDTO> productDTOList = new ArrayList<>();
-	   productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-	   productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-	   OrderDTO orderDTO = OrderDTO.builder()
-			   .orderUserId("jacob_test")
-			   .orderedDate("20200701")
-			   .updatedDate("20200701")
-			   .status(Status.PREPARED)
-			   .orderedProducts(productDTOList)
-			   .shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-			   .build();
-	   
-	   OrderDTO placedOrder = orderService.placeOrder(orderDTO);
-	   
 	   //given(입력값)
 	   OrderDTO modified = new OrderDTO();
-	   modified.setId(placedOrder.getId());
+	   modified.setId(1L);
 	   modified.setStatus(Status.DELIVERED);
 	   
 	   //when
@@ -145,25 +146,9 @@ public class OrderServiceTest {
     */
    @Test
    public void testUpdateOrderStatus_VerifyFromDB() throws Exception{
-		//fixture(주문 데이터 만들기)
-		//data 만들기(repository로 db에 직접 쌓아도 무방)
-	   List<OrderedProductDTO> productDTOList = new ArrayList<>();
-	   productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-	   productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-	   OrderDTO orderDTO = OrderDTO.builder()
-			   .orderUserId("jacob_test")
-			   .orderedDate("20200701")
-			   .updatedDate("20200701")
-			   .status(Status.PREPARED)
-			   .orderedProducts(productDTOList)
-			   .shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-			   .build();
-	   
-	   OrderDTO placedOrder = orderService.placeOrder(orderDTO);
-	   
 	   //given(입력값)
 	   OrderDTO modified = new OrderDTO();
-	   modified.setId(placedOrder.getId());
+	   modified.setId(1L);
 	   modified.setStatus(Status.DELIVERED);
 	   
 	   //when
@@ -177,24 +162,8 @@ public class OrderServiceTest {
    
    @Test
    public void testDeleteOrder() throws Exception{
-		//fixture(주문 데이터 만들기)
-		//data 만들기(repository로 db에 직접 쌓아도 무방)
-	   List<OrderedProductDTO> productDTOList = new ArrayList<>();
-	   productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-	   productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-	   OrderDTO orderDTO = OrderDTO.builder()
-			   .orderUserId("jacob_test")
-			   .orderedDate("20200701")
-			   .updatedDate("20200701")
-			   .status(Status.PREPARED)
-			   .orderedProducts(productDTOList)
-			   .shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-			   .build();
-	   
-	   OrderDTO placedOrder = orderService.placeOrder(orderDTO);
-	   
 	   //given
-	   Long id = placedOrder.getId();
+	   Long id = 1L;
 	   
 	   //when
 	   int count = orderService.deleteOrder(id);
@@ -205,46 +174,15 @@ public class OrderServiceTest {
    
    @Test
    public void testGetOrders() throws Exception{
-		//fixture(주문 데이터 만들기)
-		//data 만들기(repository로 db에 직접 쌓아도 무방)
-	   List<OrderedProductDTO> productDTOList = new ArrayList<>();
-	   productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-	   productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-	   OrderDTO orderDTO = OrderDTO.builder()
-			   .orderUserId("jacob_test")
-			   .orderedDate("20200701")
-			   .updatedDate("20200701")
-			   .status(Status.PREPARED)
-			   .orderedProducts(productDTOList)
-			   .shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-			   .build();
-	   
-	   OrderDTO placedOrder = orderService.placeOrder(orderDTO);
-	   
-	   List<OrderedProductDTO> productDTOList2 = new ArrayList<>();
-	   productDTOList2.add(OrderedProductDTO.builder().productId(3L).price(4000L).qty(30).build());
-	   productDTOList2.add(OrderedProductDTO.builder().productId(4L).price(3000L).qty(40).build());
-	   
-	   OrderDTO orderDTO2 = OrderDTO.builder()
-			   .orderUserId("jacob_test")
-			   .orderedDate("20200731")
-			   .updatedDate("20200731")
-			   .status(Status.PREPARED)
-			   .orderedProducts(productDTOList2)
-			   .shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-			   .build();
-	   
-	   OrderDTO placedOrder2 = orderService.placeOrder(orderDTO2);
-	   
 	   //given
-	   String fromDate = "20200601";
-	   String toDate = "20200630";
+	   String fromDate = "20200701";
+	   String toDate = "20200731";
 	   
 	   //when
 	   List<OrderDTO> orders = orderService.getOrders(fromDate, toDate);
 	   
 	   //then
-	   assertThat(orders.size()).isGreaterThan(2);
+	   assertThat(orders.size()).isGreaterThanOrEqualTo(2);
    }
 /*
  * TODO 테스트 코드 노트
@@ -270,5 +208,18 @@ public class OrderServiceTest {
  * 이 레이어의 test가 slice test가 아니더라도 외부 서비스 호출은 독립적 테스트를 보장하지 못하므로,
  * wiremock을 활용한 stubbing을 하여야 하며
  * 추후 consumer side의 contract 테스트에 재활용 될 수 있다.(stubbing코드를 StubRunner설정으로 대체하는 작업 필요)
+ * 
+ * ##3##
+ * 내가 필요한 sql을 통해 테스트 클래스 실행시(즉, springboot실행시)초기 데이터 로딩하는 방법
+ * @TestPropertySource(properties={"spring.datasource.data=classpath:data_for_serviceTest.sql"});
+ * 위 처럼 spring.datasource.data에 내가 원하는 sql파일을 지정하면 되며, sql파일은 src/test/resources에 위치하면 된다.
+ * data.sql은 무조건 loading하는 스타일이고, 이것은 embeddedDB일때만 default이고 아니면 안된다. 되게 하려면, spring.datasource.initialization-mode=always로 세팅해야 한다.
+ * 만일 다양한 datasource가 있고(다양한 DB) 그것마다 처음에 실행시키고 싶다면 data-h2.sql, data-mysql.sql 등으로 datasource의 platform명을 붙여서 만들면 된다.
+ * 
+ * 참고로, 
+ * application-test.yml이 src/test/resources에 위치하면
+ * @ActiveProfiles("test") 로 해당 설정을 기초로 springboot 로드 가능하고
+ * 이때의 property를 동적으로 변경하려면 위에처럼 @TestPropertySource(properties={"...=...}); 식으로 변경하고
+ * 이 값을 테스트 코드에서 참조하려면 @Value("${test.xxxxxxx}") 로 주입받아서 참조 가능하다.
  */
 }

@@ -20,6 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +34,10 @@ import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.cloud.contract.wiremock.restdocs.SpringCloudContractRestDocs;
 import org.springframework.cloud.contract.wiremock.restdocs.WireMockRestDocs;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -46,7 +50,6 @@ import tqa.demo.order.dto.OrderedProductDTO;
 import tqa.demo.order.dto.ShippingAddressDTO;
 import tqa.demo.order.entity.Status;
 import tqa.demo.order.service.OrderService;
-import tqa.demo.order.util.Utils;
 
 /*
  * Component 테스트는 Controller 를 대상으로 DevOnTester를 사용한 뒤 Junit 생성시 사용한다.
@@ -58,12 +61,11 @@ import tqa.demo.order.util.Utils;
  * insert같은 곳에서 publish하는 것은 해당 객체 @mock처리 필수
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(
-		webEnvironment = SpringBootTest.WebEnvironment.MOCK,
-		properties = {"member.service.url=http://localhost:${wiremock.server.port}"}
-		)
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@ActiveProfiles("test")//src/test/resources 에 application-test.yml이 있어야 함
 @AutoConfigureWireMock(port=0)
+@TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
+@AutoConfigureMockMvc
 @AutoConfigureRestDocs(outputDir = "target/snippets")
 @AutoConfigureJsonTesters
 public class OrderComponentTest {
@@ -78,10 +80,14 @@ public class OrderComponentTest {
 	
 	//각 controller의 return type을 보고 객체일경우(또는 generic이 객체일경우) 아래와 같이 지정한다.
 	private JacksonTester<OrderDTO> orderDTOJson;
+	private JacksonTester<List<OrderDTO>> orderListDTOJson;
 	private JacksonTester<ShippingAddressDTO> addressJson;
 	private JacksonTester<Status> statusJson;
+	private JacksonTester<String> stringJson;
 	
-	
+	//before, after sql 처리용[maven조정 필요]
+	@Autowired
+	private JdbcTemplate template;
 	
 	@Before
 	public void setUp() throws Exception{
@@ -93,6 +99,33 @@ public class OrderComponentTest {
 		stubFor(get(urlMatching("/product/stock/v1/retireveAvailable/([0-9])+")).willReturn(aResponse().withStatus(200)
 				.withHeader("Content-Type", "application/json;charset=UTF-8")
 				.withBody("1")));
+		
+		//before sql
+		StringBuilder sql = new StringBuilder();
+		sql.append("insert into orders values(1, 'jacob_test', '20200701', '20200701', 'PREPARED');");
+		sql.append("insert into orders values(2, 'jacob_test', '20200731', '20200731', 'PREPARED');");
+		sql.append("insert into ordered_product values (1, 1, 2000, 10, 1);");
+		sql.append("insert into ordered_product values (2, 2, 1000, 20, 1);");
+		sql.append("insert into ordered_product values (3, 3, 4000, 30, 2);");
+		sql.append("insert into ordered_product values (4, 4, 3000, 40, 2);");
+		sql.append("insert into shipping_address values (1, '123-345', 'jacob_test', 1);");
+		sql.append("insert into shipping_address values (2, '123-345', 'jacob_test', 2);");
+		template.batchUpdate(sql.toString().split(";"));
+	}
+	
+	@After
+	public void tearDown() throws Exception{
+		   //after sql
+		   StringBuilder sql = new StringBuilder();
+		   sql.append("delete from ordered_product where id = 1;");
+		   sql.append("delete from ordered_product where id = 2;");
+		   sql.append("delete from ordered_product where id = 3;");
+		   sql.append("delete from ordered_product where id = 4;");
+		   sql.append("delete from shipping_address where id = 1;");
+		   sql.append("delete from shipping_address where id = 2;");
+		   sql.append("delete from orders where id = 1;");
+		   sql.append("delete from orders where id = 2;");
+		   template.batchUpdate(sql.toString().split(";"));
 	}
 	
 	@Test
@@ -145,25 +178,9 @@ public class OrderComponentTest {
 	
 	@Test
 	public void testUpdateAddress() throws Exception{
-		//fixture(주문 데이터 만들기)
-		//data 만들기(repository로 db에 직접 쌓아도 무방)
-		List<OrderedProductDTO> productDTOList = new ArrayList<>();
-		productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-		productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-		OrderDTO orderDTO = OrderDTO.builder()
-				.orderUserId("jacob_test")
-				.orderedDate("20200701")
-				.updatedDate("20200701")
-				.status(Status.PREPARED)
-				.orderedProducts(productDTOList)
-				.shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-				.build();
-
-		OrderDTO placedOrder = orderService.placeOrder(orderDTO); 
-
 		//given(입력값)
 		ShippingAddressDTO addressDTO = new ShippingAddressDTO();
-		addressDTO.setOrderId(placedOrder.getId());	   
+		addressDTO.setOrderId(1L);	   
 		addressDTO.setZipCode("999-999");
 		addressDTO.setRecipient("testRecipient");
 
@@ -200,22 +217,8 @@ public class OrderComponentTest {
 	
 	@Test
 	public void testUpdateStatus() throws Exception{
-		//fixture->주문 데이터 만들기
-		List<OrderedProductDTO> productDTOList = new ArrayList<>();
-		productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-		productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-		OrderDTO orderDTO = OrderDTO.builder()
-				.orderUserId("jacob_test")
-				.orderedDate("20200701")
-				.updatedDate("20200701")
-				.status(Status.PREPARED)
-				.orderedProducts(productDTOList)
-				.shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-				.build();
-
-		OrderDTO placedOrder = orderService.placeOrder(orderDTO); //data 만들기(repository로 db에 직접 쌓아도 무방)
-
 		//given
+		Long id = 1L;
 		Status status = Status.SHIPPED;
 
 		//when
@@ -226,7 +229,7 @@ public class OrderComponentTest {
 		 * 3. 2가 아닌 @GetMapping, @PostMapping, @PutMapping, @DeletMapping 이면 URL값("{id}"와 같은 거 앞까지), 여기서 method를 Mapping앞자(Get, Post, Put, Delete)로 받기, contentType은 별말없으면 application-json
 		 * 4. 각 method가 가지는 파라미터 중 @PathVariable, @RequestParam, @RequestBody 분리하여 저장   
 		 */
-		MvcResult actual = this.mockMvc.perform(MockMvcRequestBuilders.put("/demo/order/status/v1/"+placedOrder.getId())
+		MvcResult actual = this.mockMvc.perform(MockMvcRequestBuilders.put("/demo/order/status/v1/"+id)
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(this.statusJson.write(status).getJson()))
 				.andDo(print())
@@ -244,28 +247,14 @@ public class OrderComponentTest {
 
 		//then
 		assertThat(actual.getResponse().getContentAsString()).contains("1");
+		
 	}
 	
 	@Test
 	public void testSelectList() throws Exception{
-		//fixture -> 주문 만들기
-		List<OrderedProductDTO> productDTOList = new ArrayList<>();
-		productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-		productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-		OrderDTO orderDTO = OrderDTO.builder()
-				.orderUserId("jacob_test")
-				.orderedDate("20200701")
-				.updatedDate("20200701")
-				.status(Status.PREPARED)
-				.orderedProducts(productDTOList)
-				.shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-				.build();
-
-		OrderDTO placedOrder = orderService.placeOrder(orderDTO);
-		
 		//given
-		String fromDate = "20200601";
-		String toDate = "20200630";
+		String fromDate = "20200701";
+		String toDate = "20200731";
 
 		//when
 		/*
@@ -291,29 +280,15 @@ public class OrderComponentTest {
 						SpringCloudContractRestDocs.dslContract()))
 				.andReturn();
 
-		//then
-		assertThat(actual.getResponse().getContentAsString()).contains("jacob_test",Utils.getYYYMMDD(),"ORDERED");
+		//then==> order개수 2개 검증해야 함
+		List<OrderDTO> orders = this.orderListDTOJson.parseObject(actual.getResponse().getContentAsString());
+		assertThat(orders).hasSize(2);
 	}
 
 	@Test
 	public void testDeleteOrder() throws Exception{
-		//fixture->주문 만들기
-		List<OrderedProductDTO> productDTOList = new ArrayList<>();
-		productDTOList.add(OrderedProductDTO.builder().productId(1L).price(2000L).qty(10).build());
-		productDTOList.add(OrderedProductDTO.builder().productId(2L).price(1000L).qty(20).build());
-		OrderDTO orderDTO = OrderDTO.builder()
-				.orderUserId("jacob_test")
-				.orderedDate("20200701")
-				.updatedDate("20200701")
-				.status(Status.PREPARED)
-				.orderedProducts(productDTOList)
-				.shippingAddress(ShippingAddressDTO.builder().recipient("Jacob_test").zipCode("123-345").build())
-				.build();
-
-		OrderDTO placedOrder = orderService.placeOrder(orderDTO);
-		
 		//given
-		Long orderId = placedOrder.getId();
+		Long id = 1L;
 
 		//when
 		/*
@@ -323,7 +298,7 @@ public class OrderComponentTest {
 		 * 3. 2가 아닌 @GetMapping, @PostMapping, @PutMapping, @DeletMapping 이면 URL값("{id}"와 같은 거 앞까지), 여기서 method를 Mapping앞자(Get, Post, Put, Delete)로 받기, contentType은 별말없으면 application-json
 		 * 4. 각 method가 가지는 파라미터 중 @PathVariable, @RequestParam, @RequestBody 분리하여 저장   
 		 */
-		MvcResult actual = this.mockMvc.perform(MockMvcRequestBuilders.delete("/demo/order/v1/"+orderId)
+		MvcResult actual = this.mockMvc.perform(MockMvcRequestBuilders.delete("/demo/order/v1/"+id)
 				.contentType(MediaType.APPLICATION_JSON))
 				.andDo(print())
 				.andExpect(status().isOk())

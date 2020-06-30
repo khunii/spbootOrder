@@ -29,5 +29,3 @@ CREATE TABLE ordered_product
   order_id bigint,
   CONSTRAINT ordered_product_pkey PRIMARY KEY (id)
 );
-
-
