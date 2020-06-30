@@ -52,7 +52,7 @@ import tqa.demo.order.entity.Status;
 import tqa.demo.order.service.OrderService;
 
 /*
- * Component 테스트는 Controller 를 대상으로 DevOnTester를 사용한 뒤 Junit 생성시 사용한다.
+ * Component 테스트는 Controller 를 대상으로 DTester를 사용한 뒤 Junit 생성시 사용한다.
  * 아래 annotation은 고정값으로 템플릿화
  * 단, in-memory db사용을 위해 기존의 application.yml을 복사하여 application-test.yml을 만들어야 한다.
  * 여기에는 datasource가 in-memory를 위한 것으로 변경되어야 하며

@@ -142,7 +142,7 @@ public class OrderServiceTest {
    }
    
    /*
-    * 이렇게 실행결과와 db에서 다시 조회해서 하는 형태는 사실상 DevOnTester에서는 불가능
+    * 이렇게 실행결과와 db에서 다시 조회해서 하는 형태는 사실상 DTester에서는 불가능
     */
    @Test
    public void testUpdateOrderStatus_VerifyFromDB() throws Exception{
@@ -199,7 +199,7 @@ public class OrderServiceTest {
  * 
  * ##2##
  * 이 ServiceTest는 slice test를 하지 않고, 통합테스트와 같이 실시한다.
- * repository가 인터페이스여서 DevonTester에서 지원하지 않는 이유도 있고,
+ * repository가 인터페이스여서 DTester에서 지원하지 않는 이유도 있고,
  * CommonDao의 경우, 공통 bean으로 sql호출하는 용도이므로, 해당 퍼시스턴스 레이어를 slice테스트 하지 않기 때문이며,
  * 그렇다 하더라도 독립적인 테스트를 위해 in-memory db를 사용한다.(이를 위해 application.yml파일이 실제 db설정이 되어 있다면 datasource를 변경해야 하는 일이 필요)
  * 
