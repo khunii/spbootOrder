@@ -11,8 +11,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -270,7 +270,7 @@ public class OrderComponentTest {
 				.andExpect(status().isOk())
 				.andDo(WireMockRestDocs.verify() //QueryParam도 정규표현식처럼 나올 수 있게 하는 방법 필요
 						.wiremock(
-								get(urlEqualTo("/demo/order/v1"))
+								get(urlPathMatching("/demo/order/v1"))
 								.withHeader("Content-Type", containing("application/json"))
 								.withQueryParam("fromDate", matching("^([0-9]+)$"))
 								.withQueryParam("toDate", matching("^([0-9]+)$"))
@@ -282,7 +282,7 @@ public class OrderComponentTest {
 
 		//then==> order개수 2개 검증해야 함
 		List<OrderDTO> orders = this.orderListDTOJson.parseObject(actual.getResponse().getContentAsString());
-		assertThat(orders).hasSize(2);
+		assertThat(orders).hasSizeGreaterThanOrEqualTo(2);
 	}
 
 	@Test
