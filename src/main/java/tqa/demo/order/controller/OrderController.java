@@ -1,7 +1,6 @@
 package tqa.demo.order.controller;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -45,9 +44,15 @@ public class OrderController {
 		return orderService.updateOrderStatus(dto); 
 	}
 	
+//	@GetMapping("/order/v1")
+//	public List<OrderDTO> selectOrders(@RequestParam Map<String,String> params) throws Exception{
+//		return orderService.getOrders(params.get("fromDate"), params.get("toDate"));
+//	}
+	
 	@GetMapping("/order/v1")
-	public List<OrderDTO> selectOrders(@RequestParam Map<String,String> params) throws Exception{
-		return orderService.getOrders(params.get("fromDate"), params.get("toDate"));
+	public List<OrderDTO> selectOrders(@RequestParam("fromDate") String fromDate, @RequestParam("toDate") String toDate) throws Exception{
+//		return orderService.getOrders(params.get("fromDate"), params.get("toDate"));
+		return orderService.getOrders(fromDate, toDate);
 	}
 	
 	@DeleteMapping("/order/v1/{id}")
