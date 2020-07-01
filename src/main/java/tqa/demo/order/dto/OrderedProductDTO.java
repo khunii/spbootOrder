@@ -19,5 +19,5 @@ public class OrderedProductDTO implements Serializable{
     private Long price;
     private Integer qty;
     private Long orderId;
-    private OrderDTO order;
+//    private OrderDTO order;
 }

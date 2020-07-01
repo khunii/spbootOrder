@@ -18,6 +18,6 @@ public class ShippingAddressDTO implements Serializable{
 	private String zipCode;
 	private String recipient;
 	private Long orderId;
-	private OrderDTO order;
+//	private OrderDTO order;
 
 }
