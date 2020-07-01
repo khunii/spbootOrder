@@ -33,7 +33,11 @@ import tqa.demo.order.repository.OrderRepository;
  * insert같은 곳에서 publish하는 것은 해당 객체 @mock처리 필수
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+/*
+ * DTester 오류있는듯...
+ * WebEnvironment.NONE으로 하면 No ServletContext오류 발생함, 어떻게 해야 할까?
+ */
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @ActiveProfiles("test")//src/test/resources 에 application-test.yml이 있어야 함
 @AutoConfigureWireMock(port=0)
 @TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})

@@ -49,7 +49,6 @@ import tqa.demo.order.dto.OrderDTO;
 import tqa.demo.order.dto.OrderedProductDTO;
 import tqa.demo.order.dto.ShippingAddressDTO;
 import tqa.demo.order.entity.Status;
-import tqa.demo.order.service.OrderService;
 
 /*
  * Component 테스트는 Controller 를 대상으로 DTester를 사용한 뒤 Junit 생성시 사용한다.
@@ -73,10 +72,6 @@ public class OrderComponentTest {
 	//고정값
 	@Autowired
 	MockMvc mockMvc;
-	
-	//OrderController소스에서 @Autowired나, 생성자 주입하는 타입들을 여기서 주입되도록 설정한다.
-	@Autowired
-	OrderService orderService;
 	
 	//각 controller의 return type을 보고 객체일경우(또는 generic이 객체일경우) 아래와 같이 지정한다.
 	private JacksonTester<OrderDTO> orderDTOJson;
