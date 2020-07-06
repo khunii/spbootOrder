@@ -56,8 +56,8 @@ public class OrderServiceImpl implements OrderService {
 
 		// 3. OrderDTO => Order(Entity) and 연관관계 master인 many쪽에서 관계setting
 		OrderEntity order = Utils.toOrderEntity(placeOrder);
-		order.getOrderedProducts().forEach(e->e.setOrderEntity(order));
-		order.getShippingAddress().setOrderEntity(order);
+//		order.getOrderedProducts().forEach(e->e.setOrderEntity(order));
+//		order.getShippingAddress().setOrderEntity(order);
 		
 		// 4.save =>(repository의 save)
 		return Utils.toOrderDTO(orderRepository.save(order));
@@ -66,6 +66,7 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public OrderDTO updateShippingAddress(ShippingAddressDTO addressDTO) throws Exception {
 		// JPA를 이용한 update
+		System.out.println("입력받은 addrestDTO : " + addressDTO.toString() +":"+addressDTO.getOrderId());
 		OrderEntity updateEntity = orderRepository.findById(addressDTO.getOrderId()).orElseThrow(()->new OrderNotFoundException("order not found"));
 		updateEntity.getShippingAddress()
 		    .updateAddress(

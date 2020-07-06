@@ -61,7 +61,7 @@ public class OrderEntity implements Serializable{
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
 	@Singular
 	private List<OrderedProductEntity> orderedProducts = new ArrayList<>();
-	
+		
 	@JsonIgnore
 	@OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
 	private ShippingAddressEntity shippingAddress;

@@ -14,12 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.lide.uta.core.launcher.springboot.UTAConfiguration;
 
 import tqa.demo.order.dto.OrderDTO;
 import tqa.demo.order.dto.OrderedProductDTO;
@@ -37,7 +40,8 @@ import tqa.demo.order.repository.OrderRepository;
  * DTester 오류있는듯...
  * WebEnvironment.NONE으로 하면 No ServletContext오류 발생함, 어떻게 해야 할까?
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@EnableAutoConfiguration(exclude=UTAConfiguration.class)
 @ActiveProfiles("test")//src/test/resources 에 application-test.yml이 있어야 함
 @AutoConfigureWireMock(port=0)
 @TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
