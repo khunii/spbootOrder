@@ -47,4 +47,13 @@ feign:
 member:
     service:
         url: http://localhost:7575
+        
+external:
+  services:
+    -
+      name: product
+      url: http://localhost:7575
+    -
+      name: local
+      url: http://localhost:9001        
                   

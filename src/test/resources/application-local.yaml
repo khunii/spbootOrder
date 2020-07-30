@@ -1,0 +1,9 @@
+framework:
+  domain:
+    services:
+    - name: local
+      url: http://localhost:${wiremock.server.port}
+    - name: product
+      url: http://localhost:${wiremock.server.port}
+  apim-consumer:
+    endpoint-url: http://localhost:${wiremock.server.port}/framework/userid

@@ -14,7 +14,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -45,8 +48,10 @@ import tqa.demo.order.repository.OrderRepository;
 @ActiveProfiles("test")//src/test/resources 에 application-test.yml이 있어야 함
 @AutoConfigureWireMock(port=0)
 @TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
+@EnableConfigurationProperties
 public class OrderServiceTest {
-	
+
+  
    //테스트 대상 클래스를 주입
    @Autowired
    private OrderService orderService;
@@ -77,6 +82,7 @@ public class OrderServiceTest {
 	   sql.append("insert into shipping_address values (1, '123-345', 'jacob_test', 1);");
 	   sql.append("insert into shipping_address values (2, '123-345', 'jacob_test', 2);");
 	   template.batchUpdate(sql.toString().split(";"));
+	   
    }
    
    @After
@@ -94,6 +100,7 @@ public class OrderServiceTest {
 	   template.batchUpdate(sql.toString().split(";"));
    }
    
+  
    @Test
    public void testPlaceOrder() throws Exception{
 		//given(입력값)
@@ -230,4 +237,5 @@ public class OrderServiceTest {
  * 이때의 property를 동적으로 변경하려면 위에처럼 @TestPropertySource(properties={"...=...}); 식으로 변경하고
  * 이 값을 테스트 코드에서 참조하려면 @Value("${test.xxxxxxx}") 로 주입받아서 참조 가능하다.
  */
+ 
 }
