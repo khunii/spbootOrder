@@ -12,9 +12,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppYaml {
-
+	Spring spring;
 	Framework framework;
 
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class Spring {
+		String profile;
+	}
 	@Data
 	@NoArgsConstructor
 	@AllArgsConstructor

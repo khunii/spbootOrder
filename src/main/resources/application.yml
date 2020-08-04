@@ -1,7 +1,11 @@
 server:
   port: 7475
-  
 spring:
+  acrive:
+    profile: local
+---
+spring:
+  profile: local
   application:
     name: order
     
@@ -56,18 +60,16 @@ external:
       url: http://localhost:9001 
       
 framework:
-  domain:
-    enabled: true
-    services: 
-      -
-        name: local
-        url: http://localhost:7777
-      -
-        name: product
-        url: http://localhost:8888
-  apim-consumer:
-    enabled: true
-    endpoint-url: https://devapi.framework.co.kr:443/framework/userid                     
-                  
-  http-client:
-    enabled: true
+      domain:
+        enabled: true
+        services:
+          - name: local
+            url: http://localhost:7776
+          - name: product
+            url: http://localhost:8887
+      apim-consumer:
+        enabled: true
+        endpoint-url: https://devapi.framework.co.kr:443/framework/userid
+
+      http-client:
+        enabled: true
