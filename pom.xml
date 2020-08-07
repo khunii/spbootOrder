@@ -205,11 +205,28 @@
 					</execution>
 				</executions>
 			</plugin>
-			
 		</plugins>
 	</build>
 	
-	<repositories>
+	<distributionManagement>
+		<repository>
+			<id>stubs</id>
+			<name>local repo</name>
+			<url>http://localhost:9011/repository/maven-snapshots/</url>
+		</repository>
+	</distributionManagement>
+	<!-- repositories>
+		<repository>
+			<id>nexus</id>
+			<name>local offline repo</name>
+			<url>http://localhost:9011/repository/maven-release/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
 		<repository>
 			<id>spring-snapshots</id>
 			<name>Spring Snapshots</name>
@@ -236,6 +253,17 @@
 		</repository>
 	</repositories>
 	<pluginRepositories>
+		<pluginRepository>
+			<id>nexus</id>
+			<name>local offline repo</name>
+			<url>http://localhost:9011/repository/maven-release/</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</pluginRepository>
 		<pluginRepository>
 			<id>spring-snapshots</id>
 			<name>Spring Snapshots</name>
@@ -268,6 +296,6 @@
 				<enabled>false</enabled>
 			</snapshots>
 		</pluginRepository>
-	</pluginRepositories>
+	</pluginRepositories-->
 
 </project>

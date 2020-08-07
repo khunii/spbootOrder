@@ -2,6 +2,7 @@ package tqa.demo.order.test;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -12,8 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AppYaml {
+	@JsonIgnore
 	Spring spring;
-	Framework framework;
+	Framework framework; 
 
 	@Data
 	@NoArgsConstructor
