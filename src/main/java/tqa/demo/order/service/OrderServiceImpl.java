@@ -43,10 +43,11 @@ public class OrderServiceImpl implements OrderService {
 //			headers.setContentType(MediaType.APPLICATION_JSON);
 //			HttpEntity<String> request = new HttpEntity<>("", headers);
 //			String isAvailable = restTemplate.exchange(url, HttpMethod.GET, request, String.class, id);
-			int productCnt = restTemplate.getForObject(url, Integer.class, id);
-			if (productCnt < 0) {
-				throw new InvalidOrderException("Out of Stock");
-			}
+			
+//			int productCnt = restTemplate.getForObject(url, Integer.class, id);
+//			if (productCnt < 0) {
+//				throw new InvalidOrderException("Out of Stock");
+//			}
 		}
 
 		// 2. 주문 상태 ORDERED로 변경, ORDERED_DATE, UPDATE_DATE 현재날짜로 변경
