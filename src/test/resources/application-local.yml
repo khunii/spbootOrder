@@ -1,5 +1,10 @@
 spring:
   profile: local
+member:
+    service:
+        # application-local.yml 만들때 url 규칙
+        # '#{"${wiremock.server.port:-1}".equals("-1") ? "원래 application.yml에 있던 url":"http://localhost:${wiremock.server.port:-1}"}'
+        url: '#{"${wiremock.server.port:-1}".equals("-1") ? "http://localhost:8731":"http://localhost:${wiremock.server.port:-1}"}'
 framework:
   domain:
     services:

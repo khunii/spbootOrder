@@ -4,6 +4,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -39,15 +43,15 @@ public class OrderServiceImpl implements OrderService {
 		List<Long> productIds = Utils.streamOf(placeOrder.getOrderedProducts()).map(e->e.getProductId()).collect(Collectors.toList());
 
 		for(Long id : productIds) {
-//			HttpHeaders headers = new HttpHeaders();
-//			headers.setContentType(MediaType.APPLICATION_JSON);
-//			HttpEntity<String> request = new HttpEntity<>("", headers);
+			HttpHeaders headers = new HttpHeaders();
+			headers.setContentType(MediaType.APPLICATION_JSON);
+			HttpEntity<String> request = new HttpEntity<>("", headers);
 //			String isAvailable = restTemplate.exchange(url, HttpMethod.GET, request, String.class, id);
 			
-//			int productCnt = restTemplate.getForObject(url, Integer.class, id);
-//			if (productCnt < 0) {
-//				throw new InvalidOrderException("Out of Stock");
-//			}
+			int productCnt = restTemplate.getForObject(url, Integer.class, id);
+			if (productCnt < 0) {
+				throw new InvalidOrderException("Out of Stock");
+			}
 		}
 
 		// 2. 주문 상태 ORDERED로 변경, ORDERED_DATE, UPDATE_DATE 현재날짜로 변경

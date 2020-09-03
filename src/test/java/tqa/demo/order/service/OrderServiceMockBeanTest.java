@@ -49,7 +49,7 @@ import tqa.demo.order.util.Utils;
 @EnableAutoConfiguration(exclude=UTAConfiguration.class)
 @ActiveProfiles("test")//src/test/resources 에 application-test.yml이 있어야 함
 @AutoConfigureWireMock(port=0)
-@TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
+//@TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
 @EnableConfigurationProperties
 public class OrderServiceMockBeanTest {
 

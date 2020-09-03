@@ -11,18 +11,16 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.contract.wiremock.AutoConfigureWireMock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.lide.uta.core.launcher.springboot.UTAConfiguration;
@@ -47,7 +45,7 @@ import tqa.demo.order.repository.OrderRepository;
 @EnableAutoConfiguration(exclude=UTAConfiguration.class)
 @ActiveProfiles("test")//src/test/resources 에 application-test.yml이 있어야 함
 @AutoConfigureWireMock(port=0)
-@TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
+//@TestPropertySource(properties={"member.service.url=http://localhost:${wiremock.server.port}"})
 @EnableConfigurationProperties
 public class OrderServiceTest {
 
@@ -126,7 +124,7 @@ public class OrderServiceTest {
 	   assertThat(placedOrder.getShippingAddress().getRecipient()).isEqualTo(orderDTO.getShippingAddress().getRecipient());
    }
    
-   @Test
+   @Test@Ignore
    public void testUpdateShippingAddress() throws Exception{
 	   //given(입력값)
 	   ShippingAddressDTO addressDTO = new ShippingAddressDTO();
@@ -142,7 +140,7 @@ public class OrderServiceTest {
 	   assertThat(modified.getShippingAddress().getRecipient()).isEqualTo("testRecipient");
    }
    
-   @Test
+   @Test@Ignore
    public void testUpdateOrderStatus_VerifyReturnValue() throws Exception{
 	   //given(입력값)
 	   OrderDTO modified = new OrderDTO();
@@ -159,7 +157,7 @@ public class OrderServiceTest {
    /*
     * 이렇게 실행결과와 db에서 다시 조회해서 하는 형태는 사실상 DTester에서는 불가능
     */
-   @Test
+   @Test@Ignore
    public void testUpdateOrderStatus_VerifyFromDB() throws Exception{
 	   //given(입력값)
 	   OrderDTO modified = new OrderDTO();
@@ -175,7 +173,7 @@ public class OrderServiceTest {
 	   assertThat(queriedOrder.getStatus()).isEqualTo(Status.DELIVERED);
    }
    
-   @Test
+   @Test@Ignore
    public void testDeleteOrder() throws Exception{
 	   //given
 	   Long id = 1L;
@@ -187,7 +185,7 @@ public class OrderServiceTest {
 	   assertThat(count).isEqualTo(1);
    }
    
-   @Test
+   @Test@Ignore
    public void testGetOrders() throws Exception{
 	   //given
 	   String fromDate = "20200701";

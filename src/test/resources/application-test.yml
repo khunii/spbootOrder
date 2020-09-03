@@ -46,7 +46,8 @@ feign:
                   
 member:
     service:
-        url: http://localhost:7575
+#        url: http://localhost:${wiremock.server.port:7575}
+        url: '#{"${wiremock.server.port:-1}".equals("-1") ? "http://localhost:9090":"http://localhost:${wiremock.server.port:-1}"}'
         
 external:
   services:

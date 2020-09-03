@@ -1,11 +1,11 @@
 server:
   port: 7475
 spring:
-  acrive:
-    profile: local
+  profiles:
+    active: local
 ---
 spring:
-  profile: local
+  profiles: local
   application:
     name: order
     
